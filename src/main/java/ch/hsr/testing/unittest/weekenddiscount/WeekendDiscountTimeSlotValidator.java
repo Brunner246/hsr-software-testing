@@ -37,29 +37,34 @@ public class WeekendDiscountTimeSlotValidator {
      *             or if the weekend number is higher than the number of weekends in this month
      */
     public boolean isAuthorizedForDiscount(LocalDateTime now) throws IllegalWeekendNumberException {
-        // make sure a weekend number has been set already
+        // Check if the weekend number has been set
         if (this.weekendNumber == null) {
             throw new IllegalWeekendNumberException("WeekendDiscountTimeSlotValidator has not been initialized correctly!");
-        } else {
-
-            if (WEEKEND_DAYS.contains(now.getDayOfWeek())) {
-                Integer firstSaturdayInMonth = null;
-                for (int i = 1; i < now.getMonth().maxLength() && firstSaturdayInMonth == null; i++) {
-                    if (LocalDate.of(now.getYear(), now.getMonth(), i).getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
-                        firstSaturdayInMonth = i;
-                    }
-                }
-                LocalDate beginningOfDiscountWeekend = LocalDate.of(
-                        now.getYear(),
-                        now.getMonth(),
-                        firstSaturdayInMonth + (weekendNumber - 1) * NOF_WEEKDAYS);
-                if (now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() ||
-                        now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() + 1) {
-                    return true;
-                }
-            }
-            return false;
         }
+
+        // Check if the day is a weekend day
+        if (WEEKEND_DAYS.contains(now.getDayOfWeek())) {
+            LocalDate startOfWeekend = getStartOfWeekend(now);
+            LocalDate endOfWeekend = startOfWeekend.plusDays(NOF_WEEKDAYS - 1);
+
+            // Check if the given date is within the weekend
+            return now.toLocalDate().isAfter(startOfWeekend.minusDays(1)) && now.toLocalDate().isBefore(endOfWeekend.plusDays(1));
+        }
+
+        return false;
     }
 
+    private LocalDate getStartOfWeekend(LocalDateTime now) {
+        int year = now.getYear();
+        int monthValue = now.getMonthValue();
+
+        // Find the first Saturday in the month
+        LocalDate lFirstSaturdayInMonth = LocalDate.of(year, monthValue, 1);
+        while (lFirstSaturdayInMonth.getDayOfWeek() != DayOfWeek.SATURDAY) {
+            lFirstSaturdayInMonth = lFirstSaturdayInMonth.plusDays(1);
+        }
+
+        // Calculate the start and end of the weekend for the given weekend number
+        return lFirstSaturdayInMonth.plusWeeks(weekendNumber - 1);
+    }
 }
