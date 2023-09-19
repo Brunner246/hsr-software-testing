@@ -53,10 +53,15 @@ public class WeekendDiscountTimeSlotValidator {
                         now.getYear(),
                         now.getMonth(),
                         firstSaturdayInMonth + (weekendNumber - 1) * NOF_WEEKDAYS);
-                if (now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() ||
-                        now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() + 1) {
-                    return true;
-                }
+
+
+                // TODO Alex: ich denke der fehler liegt beim oder: ||. Dies sollte meiner Meinung nach ein && sein
+                // Es prüft, ob now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() ist ODER ob now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() + 1 ist
+                // Somit wird der Rabatt auch nach dem Sonntag gegeben, wenn now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() ist
+                // bzw die expression now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() + 1) ist ja immer false :D
+                // habs dann gleich noch vereinfacht =)
+                return now.getDayOfMonth() >= beginningOfDiscountWeekend.getDayOfMonth() &&
+                        now.getDayOfMonth() <= beginningOfDiscountWeekend.getDayOfMonth() + 1;
             }
             return false;
         }
