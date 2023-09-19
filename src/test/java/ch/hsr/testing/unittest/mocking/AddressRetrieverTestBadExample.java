@@ -11,7 +11,7 @@ public class AddressRetrieverTestBadExample {
     @Test
     public void testUsingRealOnlineHttpService() throws AddressRetrieverException {
         addressRetriever = new AddressRetriever("nDYMo1V9YAueoI3wD9BTnRPQ1CYOluSa");
-        Address address = addressRetriever.retrieve(47.4999158,8.7235591);
+        Address address = addressRetriever.retrieve(47.49996,8.72351);
 
         Assertions.assertThat(address.getCity()).isEqualTo("Winterthur");
     }
