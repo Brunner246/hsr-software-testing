@@ -8,7 +8,6 @@ package ch.hsr.testing.unittest.weekenddiscount;
  * Thomas Briner, thomas.briner@gmail.com
  */
 
-import java.net.Inet4Address;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,7 +17,7 @@ import java.util.List;
 public class WeekendDiscountTimeSlotValidator {
 
     public static final List<DayOfWeek> WEEKEND_DAYS = Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
-    public static final int NOF_WEEKDAYS = 7;
+    // public static final int NOF_WEEKDAYS = 7;
 
     private Integer weekendNumber;
 
