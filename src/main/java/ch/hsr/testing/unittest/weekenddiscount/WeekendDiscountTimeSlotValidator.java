@@ -8,6 +8,7 @@ package ch.hsr.testing.unittest.weekenddiscount;
  * Thomas Briner, thomas.briner@gmail.com
  */
 
+import java.net.Inet4Address;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,8 +22,18 @@ public class WeekendDiscountTimeSlotValidator {
 
     private Integer weekendNumber;
 
-    public void initializeWithWeekendNumber(int weekendNumber) {
-        this.weekendNumber = weekendNumber;
+    public static WeekendDiscountTimeSlotValidator createWeekendDiscountTimeSlotValidator(int aWeekendNumber)
+    {
+       if (aWeekendNumber <= 0)
+       {
+           // boxing will not be checked.. but that must work => JAVA core
+           return null;
+       }
+       return new WeekendDiscountTimeSlotValidator(aWeekendNumber);
+    }
+    private WeekendDiscountTimeSlotValidator(int aWeekendNumber)
+    {
+        this.weekendNumber = aWeekendNumber;
     }
 
     /**
@@ -36,21 +47,18 @@ public class WeekendDiscountTimeSlotValidator {
      *             if weekend number is not set
      *             or if the weekend number is higher than the number of weekends in this month
      */
-    public boolean isAuthorizedForDiscount(LocalDateTime now) throws IllegalWeekendNumberException {
-        // Check if the weekend number has been set
-        if (this.weekendNumber == null) {
-            throw new IllegalWeekendNumberException("WeekendDiscountTimeSlotValidator has not been initialized correctly!");
-        }
+    public boolean isAuthorizedForDiscount(LocalDateTime now){
+
+        // removed IllegalWeekendNumberException i validate the weekendnumber in the static creator method
 
         // Check if the day is a weekend day
         if (WEEKEND_DAYS.contains(now.getDayOfWeek())) {
             LocalDate startOfWeekend = getStartOfWeekend(now);
-            LocalDate endOfWeekend = startOfWeekend.plusDays(NOF_WEEKDAYS - 1);
+            LocalDate endOfWeekend = startOfWeekend.plusDays(1);
 
             // Check if the given date is within the weekend
             return now.toLocalDate().isAfter(startOfWeekend.minusDays(1)) && now.toLocalDate().isBefore(endOfWeekend.plusDays(1));
         }
-
         return false;
     }
 
@@ -58,13 +66,15 @@ public class WeekendDiscountTimeSlotValidator {
         int year = now.getYear();
         int monthValue = now.getMonthValue();
 
-        // Find the first Saturday in the month
-        LocalDate lFirstSaturdayInMonth = LocalDate.of(year, monthValue, 1);
-        while (lFirstSaturdayInMonth.getDayOfWeek() != DayOfWeek.SATURDAY) {
-            lFirstSaturdayInMonth = lFirstSaturdayInMonth.plusDays(1);
+        // find first saturday or sunday of the month
+        LocalDate lFirstWeekendDay = LocalDate.of(year, monthValue, 1);
+        while (lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SATURDAY
+        && lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SUNDAY)
+        {
+            lFirstWeekendDay = lFirstWeekendDay.plusDays(1);
         }
 
-        // Calculate the start and end of the weekend for the given weekend number
-        return lFirstSaturdayInMonth.plusWeeks(weekendNumber - 1);
+        // get weekend start date
+        return lFirstWeekendDay.plusWeeks(weekendNumber - 1);
     }
 }
