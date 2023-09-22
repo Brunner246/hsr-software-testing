@@ -23,6 +23,7 @@ public class WeekendDiscountTimeSlotValidator {
     /**
      * static creator method that validates the input param before constructing the object.
      * with that we don't have to throw an exception
+     *
      * @param aWeekendNumber
      * @return
      */
@@ -41,36 +42,41 @@ public class WeekendDiscountTimeSlotValidator {
      * * Checks whether a date is within the nth weekend (Saturday 00:00 to Sunday
      * 23:59) of the month. The number n has to be given to the instance beforehand
      * using the initializeWithWeekendNumber Method.
+     * <p>
+     * The weekend has always to start on a saturday according to ISO-Standard 8601.
+     * Defined by the Product Owner Hans Muster on 18.09.2023.
      *
      * @param now
      * @return
      */
     public boolean isAuthorizedForDiscount(LocalDateTime now) {
 
-        // removed IllegalWeekendNumberException i validate the weekendnumber in the static creator method
-        // Check if the day is a weekend day
-        // discussion with PO resulted that Sunday counts as start of weekend
+        // refactored class according to clean code rules
+        // IllegalWeekendNumberException I validate the weekend nr in the static creator method
         if (WEEKEND_DAYS.contains(now.getDayOfWeek())) {
             LocalDate startOfWeekend = getStartOfWeekend(now);
             LocalDate endOfWeekend = startOfWeekend.plusDays(1);
 
-            // Check if the given date is within the weekend
             return now.toLocalDate().isAfter(startOfWeekend.minusDays(1)) && now.toLocalDate().isBefore(endOfWeekend.plusDays(1));
         }
         return false;
     }
 
+    /**
+     * get start of weekend
+     * the weekend has to start on a saturday according to ISO-Standard 8601.
+     *
+     * @param now
+     * @return
+     */
     private LocalDate getStartOfWeekend(LocalDateTime now) {
         int year = now.getYear();
         int monthValue = now.getMonthValue();
 
-        // find first saturday or sunday of the month
-        // discussion with PO resulted that Sunday counts as start of weekend
         LocalDate lFirstWeekendDay = LocalDate.of(year, monthValue, 1);
-        while (lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SATURDAY
-                && lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
-           lFirstWeekendDay = lFirstWeekendDay.plusDays(1);
+        while (lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SATURDAY) {
+            lFirstWeekendDay = lFirstWeekendDay.plusDays(1);
         }
-        return lFirstWeekendDay; //.plusWeeks(weekendNumber - 1);
+        return lFirstWeekendDay.plusWeeks(weekendNumber - 1);
     }
 }
