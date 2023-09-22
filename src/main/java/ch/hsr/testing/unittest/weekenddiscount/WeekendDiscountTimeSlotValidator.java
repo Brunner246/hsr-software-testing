@@ -17,40 +17,39 @@ import java.util.List;
 public class WeekendDiscountTimeSlotValidator {
 
     public static final List<DayOfWeek> WEEKEND_DAYS = Arrays.asList(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY);
-    // public static final int NOF_WEEKDAYS = 7;
 
-    private Integer weekendNumber;
+    private final Integer weekendNumber;
 
-    public static WeekendDiscountTimeSlotValidator createWeekendDiscountTimeSlotValidator(int aWeekendNumber)
-    {
-       if (aWeekendNumber <= 0)
-       {
-           // boxing will not be checked.. but that must work => JAVA core
-           return null;
-       }
-       return new WeekendDiscountTimeSlotValidator(aWeekendNumber);
+    /**
+     * static creator method that validates the input param before constructing the object.
+     * with that we don't have to throw an exception
+     * @param aWeekendNumber
+     * @return
+     */
+    public static WeekendDiscountTimeSlotValidator createWeekendDiscountTimeSlotValidator(int aWeekendNumber) {
+        if (aWeekendNumber <= 0) {
+            return null;
+        }
+        return new WeekendDiscountTimeSlotValidator(aWeekendNumber);
     }
-    private WeekendDiscountTimeSlotValidator(int aWeekendNumber)
-    {
+
+    private WeekendDiscountTimeSlotValidator(int aWeekendNumber) {
         this.weekendNumber = aWeekendNumber;
     }
 
     /**
-     * Checks whether a date is within the nth weekend (Saturday 00:00 to Sunday
+     * * Checks whether a date is within the nth weekend (Saturday 00:00 to Sunday
      * 23:59) of the month. The number n has to be given to the instance beforehand
      * using the initializeWithWeekendNumber Method.
      *
-     * @param now the point in time for which the decision should be made whether weekend discount is applied or not
+     * @param now
      * @return
-     * @throws IllegalWeekendNumberException
-     *             if weekend number is not set
-     *             or if the weekend number is higher than the number of weekends in this month
      */
-    public boolean isAuthorizedForDiscount(LocalDateTime now){
+    public boolean isAuthorizedForDiscount(LocalDateTime now) {
 
         // removed IllegalWeekendNumberException i validate the weekendnumber in the static creator method
-
         // Check if the day is a weekend day
+        // discussion with PO resulted that Sunday counts as start of weekend
         if (WEEKEND_DAYS.contains(now.getDayOfWeek())) {
             LocalDate startOfWeekend = getStartOfWeekend(now);
             LocalDate endOfWeekend = startOfWeekend.plusDays(1);
@@ -66,14 +65,12 @@ public class WeekendDiscountTimeSlotValidator {
         int monthValue = now.getMonthValue();
 
         // find first saturday or sunday of the month
+        // discussion with PO resulted that Sunday counts as start of weekend
         LocalDate lFirstWeekendDay = LocalDate.of(year, monthValue, 1);
         while (lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SATURDAY
-        && lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SUNDAY)
-        {
-            lFirstWeekendDay = lFirstWeekendDay.plusDays(1);
+                && lFirstWeekendDay.getDayOfWeek() != DayOfWeek.SUNDAY) {
+           lFirstWeekendDay = lFirstWeekendDay.plusDays(1);
         }
-
-        // get weekend start date
-        return lFirstWeekendDay.plusWeeks(weekendNumber - 1);
+        return lFirstWeekendDay; //.plusWeeks(weekendNumber - 1);
     }
 }
