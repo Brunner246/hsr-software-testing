@@ -81,8 +81,7 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         saucePage.buySauce();
         saucePage.goToCart();
-        var lSavings = saucePage.getTotalSavings();
-        LogFactory.getLog(WeekendDiscountAcceptanceTests.class).info(lSavings);
+
         MatcherAssert.assertThat(saucePage.getTotalSavings(), Matchers.is("$3.50"));
     }
 

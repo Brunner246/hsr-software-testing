@@ -23,8 +23,7 @@ public class SauceDetailPage extends Page {
     }
 
     public String getTotalSavings() {
-        var lTotalSavings = driver.findElement(totalSavings).getText();
-        return lTotalSavings;
+        return driver.findElement(totalSavings).getText();
     }
 
 }
