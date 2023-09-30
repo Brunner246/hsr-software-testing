@@ -11,6 +11,8 @@ public class SauceDetailPage extends Page {
 
     private By addToCartButtonLocator = By.xpath("//button[contains(@class,'js-addToCart')]");
 
+    private final By totalSavings = By.xpath("//div[contains(@class,'discount')]/span");
+
     public SauceDetailPage(WebDriver driver) {
         super(driver);
         LOG.debug("HotSauces Detail Page created successfully");
@@ -18,6 +20,11 @@ public class SauceDetailPage extends Page {
 
     public void buySauce() {
         driver.findElement(addToCartButtonLocator).click();
+    }
+
+    public String getTotalSavings() {
+        var lTotalSavings = driver.findElement(totalSavings).getText();
+        return lTotalSavings;
     }
 
 }

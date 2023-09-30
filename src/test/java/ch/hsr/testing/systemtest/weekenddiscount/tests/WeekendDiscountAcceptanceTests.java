@@ -10,10 +10,15 @@ package ch.hsr.testing.systemtest.weekenddiscount.tests;
 import ch.hsr.testing.systemtest.weekenddiscount.Constants;
 import ch.hsr.testing.systemtest.weekenddiscount.extension.ScreenshotOnFailureExtension;
 import ch.hsr.testing.systemtest.weekenddiscount.extension.WebDriverKeeper;
+import ch.hsr.testing.systemtest.weekenddiscount.pageobjects.HomePage;
+import ch.hsr.testing.systemtest.weekenddiscount.pageobjects.HotSaucesPage;
+import ch.hsr.testing.systemtest.weekenddiscount.pageobjects.SauceDetailPage;
 import ch.hsr.testing.systemtest.weekenddiscount.util.DBUtil;
 import ch.hsr.testing.systemtest.weekenddiscount.util.DateFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +30,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 
 import java.io.IOException;
+import java.time.Month;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -62,13 +68,22 @@ public class WeekendDiscountAcceptanceTests implements Constants {
     @Test
     public void testWeekendDiscountEnabled() {
 
-        Date within4thWeekend = DateFactory.createDate(2018, 6, 23, 0, 0, 0);
+        Date within4thWeekend = DateFactory.createDate(2023, 9, 23, 0, 0, 0);
         DBUtil.setTestTime(within4thWeekend);
 
-        // TODO: Implement this
-        Assertions.fail("Implement Testcase");
+        var homePage = HomePage.navigateTo(driver);
 
+        MatcherAssert.assertThat(homePage.getNofObjectsInCart(), Matchers.is(0));
 
+        HotSaucesPage hotSaucesPage = homePage.jumpToHotSauces();
+
+        SauceDetailPage saucePage = hotSaucesPage.sauceDayOfTheDeadHabaneroDetails();
+
+        saucePage.buySauce();
+        saucePage.goToCart();
+        var lSavings = saucePage.getTotalSavings();
+        LogFactory.getLog(WeekendDiscountAcceptanceTests.class).info(lSavings);
+        MatcherAssert.assertThat(saucePage.getTotalSavings(), Matchers.is("$3.50"));
     }
 
     @Test
@@ -78,6 +93,10 @@ public class WeekendDiscountAcceptanceTests implements Constants {
         DBUtil.setTestTime(after4thWeekend);
 
         // TODO: Implement this
+        driver.get("http://localhost:8080");
+
+       // WeekendDiscountPage weekendDiscountPage = PageFactory.initElements(driver, WeekendDiscountPage.class);
+
         Assertions.fail("Implement Testcase");
 
     }
