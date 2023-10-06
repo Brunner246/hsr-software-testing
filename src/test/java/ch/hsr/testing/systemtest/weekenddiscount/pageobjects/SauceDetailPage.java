@@ -9,9 +9,7 @@ public class SauceDetailPage extends Page {
 
     private static final Log LOG = LogFactory.getLog(SauceDetailPage.class);
 
-    private By addToCartButtonLocator = By.xpath("//button[contains(@class,'js-addToCart')]");
-
-    private final By totalSavings = By.xpath("//div[contains(@class,'discount')]/span");
+    private final By addToCartButtonLocator = By.xpath("//button[contains(@class,'js-addToCart')]");
 
     public SauceDetailPage(WebDriver driver) {
         super(driver);
@@ -20,10 +18,6 @@ public class SauceDetailPage extends Page {
 
     public void buySauce() {
         driver.findElement(addToCartButtonLocator).click();
-    }
-
-    public String getTotalSavings() {
-        return driver.findElement(totalSavings).getText();
     }
 
 }

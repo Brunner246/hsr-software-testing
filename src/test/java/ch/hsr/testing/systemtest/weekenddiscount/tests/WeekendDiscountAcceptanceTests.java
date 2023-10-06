@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,10 +28,10 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.CapabilityType;
 
-import java.io.IOException;
-import java.time.Month;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.time.Month;
+
 
 /**
  * The Class HeatClinicAcceptanceTests. In this class the acceptance Tests for
@@ -47,6 +46,10 @@ public class WeekendDiscountAcceptanceTests implements Constants {
     public ScreenshotOnFailureExtension screenshot = new ScreenshotOnFailureExtension();
 
     private WebDriver driver;
+
+    private static final String DISCOUNT_LAST_WEEKEND_OF_MONTH = "$3.50";
+
+    private static final String NO_DISCOUNT = "$0.00";
 
     @BeforeEach
     public void setup() {
@@ -65,10 +68,16 @@ public class WeekendDiscountAcceptanceTests implements Constants {
         driver.close();
     }
 
+    /**
+     * Test that the weekend discount is enabled on the last weekend of the
+     * month.
+     */
     @Test
     public void testWeekendDiscountEnabled() {
 
-        Date within4thWeekend = DateFactory.createDate(2023, 9, 23, 0, 0, 0);
+        Date within4thWeekend = DateFactory.createDate(2023, Month.SEPTEMBER.getValue()
+                , 23, 0, 0, 0);
+
         DBUtil.setTestTime(within4thWeekend);
 
         var homePage = HomePage.navigateTo(driver);
@@ -80,24 +89,35 @@ public class WeekendDiscountAcceptanceTests implements Constants {
         SauceDetailPage saucePage = hotSaucesPage.sauceDayOfTheDeadHabaneroDetails();
 
         saucePage.buySauce();
-        saucePage.goToCart();
 
-        MatcherAssert.assertThat(saucePage.getTotalSavings(), Matchers.is("$3.50"));
+        var cartPage = saucePage.goToCart();
+
+        MatcherAssert.assertThat("Saving must be equals $3.50", cartPage.getSavingsItemInCart(), Matchers.is(WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH));
     }
 
+    /**
+     * Test that the weekend discount is disabled for all other weekends than the last weekend of the month.
+     */
     @Test
     public void testWeekendDiscountDisabled() {
 
-        Date after4thWeekend = DateFactory.createDate(2018, 6, 25, 0, 0, 0);
+        Date after4thWeekend = DateFactory.createDate(2018, Month.JUNE.getValue(), 25, 0, 0, 0);
+
         DBUtil.setTestTime(after4thWeekend);
 
-        // TODO: Implement this
-        driver.get("http://localhost:8080");
+        var homePage = HomePage.navigateTo(driver);
 
-       // WeekendDiscountPage weekendDiscountPage = PageFactory.initElements(driver, WeekendDiscountPage.class);
+        MatcherAssert.assertThat(homePage.getNofObjectsInCart(), Matchers.is(0));
 
-        Assertions.fail("Implement Testcase");
+        HotSaucesPage hotSaucesPage = homePage.jumpToHotSauces();
+
+        SauceDetailPage saucePage = hotSaucesPage.sauceDayOfTheDeadHabaneroDetails();
+
+        saucePage.buySauce();
+
+       var cartPage = saucePage.goToCart();
+
+        MatcherAssert.assertThat("Total savings must be equals $0.00", cartPage.getTotalSavingsSummary(), Matchers.is(WeekendDiscountAcceptanceTests.NO_DISCOUNT));
 
     }
-
 }
