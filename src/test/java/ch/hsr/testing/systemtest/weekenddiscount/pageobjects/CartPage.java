@@ -11,10 +11,11 @@ public class CartPage extends Page {
 
     private static final Log LOG = LogFactory.getLog(HomePage.class);
 
-    private final By savingsItemInCart = By.xpath("//div[contains(@class,'discount')]/span");
-
-    private final By totalSavingsSummary = By.xpath("//div[@class='row cart-summary-breakdown']"+
+    private final By totalSavingsSummary = By.xpath("//div[@class='row cart-summary-breakdown']" +
             "//span[contains(text(), 'Total Savings')]/following-sibling::span[@class='pull-right']");
+
+    private final By subTotalSummary = By.xpath("//div[@class='row cart-summary-breakdown']" +
+            "//span[contains(text(), 'Subtotal')]/following-sibling::span[@class='pull-right']");
 
     @FindBy(id = "cart_products")
     private WebElement productsInCartTable;
@@ -28,11 +29,24 @@ public class CartPage extends Page {
         LOG.debug("CartPage created successfully");
     }
 
-    public String getSavingsItemInCart() {
-        return driver.findElement(savingsItemInCart).getText();
+    public double getSavingsFromItemInCart() {
+        var lSavings = driver.findElement(totalSavingsSummary).getText();
+        double lSavingsNotRounded = parseSavings(lSavings);
+        return roundSavings(lSavingsNotRounded);
     }
 
-    public String getTotalSavingsSummary() {
-        return driver.findElement(totalSavingsSummary).getText();
+    public double getSubTotal() {
+        var lSubTotal = driver.findElement(subTotalSummary).getText();
+        double lSubTotalNotRounded = parseSavings(lSubTotal);
+        return roundSavings(lSubTotalNotRounded);
+    }
+
+    private double parseSavings(String savings) {
+        var lNumericPart = savings.replace("$", "");
+        return Double.parseDouble(lNumericPart);
+    }
+
+    private double roundSavings(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 }

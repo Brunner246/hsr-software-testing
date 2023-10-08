@@ -42,14 +42,13 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
     private static final Log LOG = LogFactory
             .getLog(WeekendDiscountAcceptanceTests.class);
-
     public ScreenshotOnFailureExtension screenshot = new ScreenshotOnFailureExtension();
 
     private WebDriver driver;
 
-    private static final String DISCOUNT_LAST_WEEKEND_OF_MONTH = "$3.50";
+    private static final double DISCOUNT_LAST_WEEKEND_OF_MONTH = 0.5;
 
-    private static final String NO_DISCOUNT = "$0.00";
+    private static final double NO_DISCOUNT = 0.0;
 
     @BeforeEach
     public void setup() {
@@ -75,8 +74,12 @@ public class WeekendDiscountAcceptanceTests implements Constants {
     @Test
     public void testWeekendDiscountEnabled() {
 
+        LOG.info("Test start: testWeekendDiscountEnabled");
+
         Date within4thWeekend = DateFactory.createDate(2023, Month.SEPTEMBER.getValue()
                 , 23, 0, 0, 0);
+
+        LOG.info("Test date: " + within4thWeekend);
 
         DBUtil.setTestTime(within4thWeekend);
 
@@ -92,16 +95,31 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         var cartPage = saucePage.goToCart();
 
-        MatcherAssert.assertThat("Saving must be equals $3.50", cartPage.getSavingsItemInCart(), Matchers.is(WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH));
+        LOG.info( String.format("Price with discount of %.1f %%",
+                WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH * 100));
+        double lPriceExpected = cartPage.getSubTotal() * WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH;
+
+        double lPriceExpectedRounded = Math.round(lPriceExpected * 100.0) / 100.0;
+
+        String lPriceExpectedRoundedString = String.format("Saving must be equals %.2f", lPriceExpectedRounded);
+
+        MatcherAssert.assertThat(lPriceExpectedRoundedString, cartPage.getSavingsFromItemInCart(),
+                Matchers.is(lPriceExpectedRounded));
+
+        LOG.info("Test end: testWeekendDiscountEnabled");
     }
 
     /**
-     * Test that the weekend discount is disabled for all other weekends than the last weekend of the month.
+     * Test that the weekend discount is disabled for a weekend that is not the last one of the month.
      */
     @Test
     public void testWeekendDiscountDisabled() {
 
+        LOG.info("Test start: testWeekendDiscountDisabled");
+
         Date after4thWeekend = DateFactory.createDate(2018, Month.JUNE.getValue(), 25, 0, 0, 0);
+
+        LOG.info("Test date: " + after4thWeekend);
 
         DBUtil.setTestTime(after4thWeekend);
 
@@ -115,9 +133,14 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         saucePage.buySauce();
 
-       var cartPage = saucePage.goToCart();
+        var cartPage = saucePage.goToCart();
+        // check that the discount is disabled (equals to zero) with a delta of 1e-3
+        boolean lIsDiscountDisabled = Math.abs((cartPage.getSavingsFromItemInCart() - WeekendDiscountAcceptanceTests.NO_DISCOUNT)) < 1e-3;
 
-        MatcherAssert.assertThat("Total savings must be equals $0.00", cartPage.getTotalSavingsSummary(), Matchers.is(WeekendDiscountAcceptanceTests.NO_DISCOUNT));
+        String lPriceExpectedRoundedString = String.format("Total savings must be equals $0.00 %.2f", WeekendDiscountAcceptanceTests.NO_DISCOUNT);
 
+        MatcherAssert.assertThat(lPriceExpectedRoundedString, lIsDiscountDisabled);
+
+        LOG.info("Test end: testWeekendDiscountDisabled");
     }
 }
