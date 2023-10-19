@@ -46,9 +46,14 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
     private WebDriver driver;
 
+    // savings with discount of 50% (change this value if the discount changes)
     private static final double DISCOUNT_LAST_WEEKEND_OF_MONTH = 0.5;
 
+    // Savings without discount
     private static final double NO_DISCOUNT = 0.0;
+
+    // delta for comparing doubles with a precision of 1e-3
+    private static final double DELTA_3 = 1e-3;
 
     @BeforeEach
     public void setup() {
@@ -135,7 +140,7 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         var cartPage = saucePage.goToCart();
         // check that the discount is disabled (equals to zero) with a delta of 1e-3
-        boolean lIsDiscountDisabled = Math.abs((cartPage.getSavingsFromItemInCart() - WeekendDiscountAcceptanceTests.NO_DISCOUNT)) < 1e-3;
+        boolean lIsDiscountDisabled = Math.abs((cartPage.getSavingsFromItemInCart() - WeekendDiscountAcceptanceTests.NO_DISCOUNT)) < DELTA_3;
 
         String lPriceExpectedRoundedString = String.format("Total savings must be equals $0.00 %.2f", WeekendDiscountAcceptanceTests.NO_DISCOUNT);
 
