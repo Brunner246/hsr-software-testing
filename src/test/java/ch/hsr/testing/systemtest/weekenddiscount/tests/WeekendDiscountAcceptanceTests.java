@@ -52,7 +52,7 @@ public class WeekendDiscountAcceptanceTests implements Constants {
     // Savings without discount
     private static final double NO_DISCOUNT = 0.0;
 
-    // delta for comparing doubles with a precision of 1e-3
+    // delta for comparing doubles with a precision of 1e-3 (0.001)
     private static final double DELTA_3 = 1e-3;
 
     @BeforeEach
@@ -80,9 +80,10 @@ public class WeekendDiscountAcceptanceTests implements Constants {
     public void testWeekendDiscountEnabled() {
 
         LOG.info("Test start: testWeekendDiscountEnabled");
-
+        // ARRANGE
         Date within4thWeekend = DateFactory.createDate(2023, Month.SEPTEMBER.getValue()
                 , 23, 0, 0, 0);
+
 
         LOG.info("Test date: " + within4thWeekend);
 
@@ -98,9 +99,10 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         saucePage.buySauce();
 
+        // ACT
         var cartPage = saucePage.goToCart();
 
-        LOG.info( String.format("Price with discount of %.1f %%",
+        LOG.info(String.format("Price with discount of %.1f %%",
                 WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH * 100));
         double lPriceExpected = cartPage.getSubTotal() * WeekendDiscountAcceptanceTests.DISCOUNT_LAST_WEEKEND_OF_MONTH;
 
@@ -108,8 +110,11 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         String lPriceExpectedRoundedString = String.format("Saving must be equals %.2f", lPriceExpectedRounded);
 
-        MatcherAssert.assertThat(lPriceExpectedRoundedString, cartPage.getSavingsFromItemInCart(),
-                Matchers.is(lPriceExpectedRounded));
+        boolean lDiscountEnabled = Math.abs(cartPage.getSavingsFromItemInCart() - lPriceExpectedRounded)
+                < WeekendDiscountAcceptanceTests.DELTA_3;
+
+        // ASSERT
+        MatcherAssert.assertThat(lPriceExpectedRoundedString, lDiscountEnabled);
 
         LOG.info("Test end: testWeekendDiscountEnabled");
     }
@@ -122,7 +127,9 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         LOG.info("Test start: testWeekendDiscountDisabled");
 
-        Date after4thWeekend = DateFactory.createDate(2018, Month.JUNE.getValue(), 25, 0, 0, 0);
+        // ARRANGE
+        Date after4thWeekend = DateFactory.createDate(2018, Month.JUNE.getValue()
+                , 25, 0, 0, 0);
 
         LOG.info("Test date: " + after4thWeekend);
 
@@ -138,12 +145,16 @@ public class WeekendDiscountAcceptanceTests implements Constants {
 
         saucePage.buySauce();
 
+        // ACT
         var cartPage = saucePage.goToCart();
         // check that the discount is disabled (equals to zero) with a delta of 1e-3
-        boolean lIsDiscountDisabled = Math.abs((cartPage.getSavingsFromItemInCart() - WeekendDiscountAcceptanceTests.NO_DISCOUNT)) < DELTA_3;
+        boolean lIsDiscountDisabled = Math.abs((cartPage.getSavingsFromItemInCart() - WeekendDiscountAcceptanceTests.NO_DISCOUNT))
+                < DELTA_3;
 
-        String lPriceExpectedRoundedString = String.format("Total savings must be equals $0.00 %.2f", WeekendDiscountAcceptanceTests.NO_DISCOUNT);
+        String lPriceExpectedRoundedString = String.format("Total savings must be equals $0.00 %.2f",
+                WeekendDiscountAcceptanceTests.NO_DISCOUNT);
 
+        // ASSERT
         MatcherAssert.assertThat(lPriceExpectedRoundedString, lIsDiscountDisabled);
 
         LOG.info("Test end: testWeekendDiscountDisabled");
