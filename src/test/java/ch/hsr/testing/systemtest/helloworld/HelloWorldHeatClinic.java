@@ -33,7 +33,6 @@ public class HelloWorldHeatClinic implements Constants {
 
 	@BeforeEach
 	public void setup() {
-
 		System.setProperty("webdriver.chrome.driver", getChromeDriverPath());
 		ChromeOptions options = new ChromeOptions();
 		options.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
@@ -54,7 +53,7 @@ public class HelloWorldHeatClinic implements Constants {
 
 
 		// check if the home page is loaded
-		Assertions.assertThat(driver.getPageSource()).contains("Hot Sauces");
+		Assertions.assertThat(driver.getPageSource()).contains("Heat Clinic");
 
 
 		// now go to "Hot Sauces"
@@ -63,13 +62,14 @@ public class HelloWorldHeatClinic implements Constants {
 		Assertions.assertThat(driver.getTitle()).contains("Hot Sauces");
 
 
-        // jump to the green ghost sauce detail page
+		// jump to the green ghost sauce detail page
+		WebElement greenGhostLink = driver.findElement(By.xpath("//a[@href='/hot-sauces/green_ghost']"));
+		greenGhostLink.click();
 
 
-        // and check the price of the green ghost sauce: should be $11.99
-
-        // TODO: Implement this
-        Assertions.fail("Implement Testcase");
+		// and check the price of the green ghost sauce: should be $9.99
+		String price = driver.findElement(By.className("price-new")).getText();
+		Assertions.assertThat(price).isEqualTo("$9.99");
 
 
 	}

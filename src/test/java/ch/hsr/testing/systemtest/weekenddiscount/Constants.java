@@ -16,7 +16,7 @@ public interface Constants {
 
     default String getChromeDriverPath() {
         try {
-            URL res = getClass().getClassLoader().getResource("chromedriver/" + OS + "/chromedriver");
+            URL res = getClass().getClassLoader().getResource("chromedriver/" + OS + "/chromedriver.exe");
             File file = Paths.get(res.toURI()).toFile();
             return file.getAbsolutePath();
         } catch (URISyntaxException | NullPointerException e) {
